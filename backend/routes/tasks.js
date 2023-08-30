@@ -10,6 +10,14 @@ router.get('/', (req, res) => {
   });
 });
 
+// GET /tasks/assigned/:userId
+router.get('/assigned/:userId', (req, res) => {
+  db.all('SELECT * FROM tasks WHERE assigned_to = ?', [req.params.userId], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
 // POST /tasks
 router.post('/', (req, res) => {
   const { title, description, status, assigned_to } = req.body;

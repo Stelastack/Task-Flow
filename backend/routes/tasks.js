@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { getIo } = require('../socket');
 
 // GET /tasks
 router.get('/', (req, res) => {
@@ -24,6 +25,7 @@ router.post('/', (req, res) => {
   db.run('INSERT INTO tasks (title, description, status, assigned_to) VALUES (?, ?, ?, ?)', [title, description, status, assigned_to], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ id: this.lastID });
+    getIo().emit('taskCreated', { id: this.lastID });
   });
 });
 
@@ -33,6 +35,7 @@ router.put('/:id', (req, res) => {
   db.run('UPDATE tasks SET title = ?, description = ?, status = ?, assigned_to = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [title, description, status, assigned_to, req.params.id], (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Task updated' });
+    getIo().emit('taskUpdated', { id: req.params.id });
   });
 });
 
@@ -41,6 +44,7 @@ router.delete('/:id', (req, res) => {
   db.run('DELETE FROM tasks WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Task deleted' });
+    getIo().emit('taskDeleted', { id: req.params.id });
   });
 });
 

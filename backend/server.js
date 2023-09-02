@@ -4,6 +4,8 @@ const db = require('./db');
 const app = express();
 const server = http.createServer(app);
 const io = require('socket.io')(server);
+const { setIo } = require('./socket');
+setIo(io);
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());

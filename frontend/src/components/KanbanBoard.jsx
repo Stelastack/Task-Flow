@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TaskCard from './TaskCard';
+import TaskModal from './TaskModal';
 
 const KanbanBoard = () => {
   const columns = ['todo', 'in-progress', 'done'];
@@ -8,6 +9,7 @@ const KanbanBoard = () => {
     { id: 1, title: 'Task 1', description: 'First task', status: 'todo' },
     { id: 2, title: 'Task 2', description: 'Second task', status: 'in-progress' },
   ]);
+  const [editingTask, setEditingTask] = useState(null);
 
   const tasksByStatus = columns.reduce((acc, status) => {
     acc[status] = tasks.filter(t => t.status === status);
@@ -21,6 +23,10 @@ const KanbanBoard = () => {
       const task = tasks.find(t => t.id.toString() === result.draggableId);
       setTasks(tasks.map(t => t.id === task.id ? { ...t, status: destination.droppableId } : t));
     }
+  };
+
+  const handleSave = (updatedTask) => {
+    setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
   };
 
   return (
@@ -44,7 +50,7 @@ const KanbanBoard = () => {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <TaskCard task={task} />
+                          <TaskCard task={task} onClick={() => setEditingTask(task)} />
                         </div>
                       )}
                     </Draggable>
@@ -56,6 +62,13 @@ const KanbanBoard = () => {
           </Droppable>
         ))}
       </div>
+      {editingTask && (
+        <TaskModal
+          task={editingTask}
+          onClose={() => setEditingTask(null)}
+          onSave={handleSave}
+        />
+      )}
     </DragDropContext>
   );
 };

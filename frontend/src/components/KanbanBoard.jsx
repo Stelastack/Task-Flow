@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TaskCard from './TaskCard';
 import TaskModal from './TaskModal';
 
 const KanbanBoard = () => {
   const columns = ['todo', 'in-progress', 'done'];
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Task 1', description: 'First task', status: 'todo' },
-    { id: 2, title: 'Task 2', description: 'Second task', status: 'in-progress' },
-  ]);
+  const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
+
+  const fetchTasks = async () => {
+    const res = await fetch('/api/tasks', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setTasks(data);
+    }
+  };
+
+  const updateTask = async (task) => {
+    const res = await fetch(`/api/tasks/${task.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      body: JSON.stringify(task),
+    });
+    if (res.ok) {
+      fetchTasks();
+    }
+  };
+
+  useEffect(() => { fetchTasks(); }, []);
 
   const tasksByStatus = columns.reduce((acc, status) => {
     acc[status] = tasks.filter(t => t.status === status);
@@ -21,12 +41,15 @@ const KanbanBoard = () => {
     const { source, destination } = result;
     if (source.droppableId !== destination.droppableId) {
       const task = tasks.find(t => t.id.toString() === result.draggableId);
-      setTasks(tasks.map(t => t.id === task.id ? { ...t, status: destination.droppableId } : t));
+      const updatedTask = { ...task, status: destination.droppableId };
+      setTasks(tasks.map(t => t.id === task.id ? updatedTask : t));
+      updateTask(updatedTask);
     }
   };
 
   const handleSave = (updatedTask) => {
     setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
+    updateTask(updatedTask);
   };
 
   return (

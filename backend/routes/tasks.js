@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const auth = require('../middleware/auth');
 const { getIo } = require('../socket');
+
+router.use(auth);
 
 // GET /tasks
 router.get('/', (req, res) => {

@@ -54,14 +54,14 @@ const KanbanBoard = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex space-x-4 p-4">
+      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 p-4">
         {columns.map(column => (
           <Droppable key={column} droppableId={column}>
             {(provided) => (
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className="w-1/3 bg-gray-200 p-4 rounded"
+                className="w-full md:w-1/3 bg-gray-200 p-4 rounded"
               >
                 <h2 className="text-lg font-bold mb-4 capitalize">{column.replace('-', ' ')}</h2>
                 <div className="space-y-2">

@@ -18,6 +18,10 @@ app.get('/', (req, res) => {
   res.send('Task Flow Backend');
 });
 
+app.use((err, req, res, next) => {
+  res.status(500).json({ error: err.message });
+});
+
 io.on('connection', (socket) => {
   console.log('User connected');
   socket.on('disconnect', () => {

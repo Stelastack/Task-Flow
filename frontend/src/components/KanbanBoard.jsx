@@ -9,23 +9,35 @@ const KanbanBoard = () => {
   const [editingTask, setEditingTask] = useState(null);
 
   const fetchTasks = async () => {
-    const res = await fetch('/api/tasks', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setTasks(data);
+    try {
+      const res = await fetch('/api/tasks', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTasks(data);
+      } else {
+        alert('Failed to fetch tasks');
+      }
+    } catch (err) {
+      alert('Error fetching tasks');
     }
   };
 
   const updateTask = async (task) => {
-    const res = await fetch(`/api/tasks/${task.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-      body: JSON.stringify(task),
-    });
-    if (res.ok) {
-      fetchTasks();
+    try {
+      const res = await fetch(`/api/tasks/${task.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify(task),
+      });
+      if (res.ok) {
+        fetchTasks();
+      } else {
+        alert('Failed to update task');
+      }
+    } catch (err) {
+      alert('Error updating task');
     }
   };
 
